@@ -1,0 +1,16 @@
+{
+  "work-order": [
+    "billing.quote.sent",
+    "billing.quote.rejected",
+    "billing.quote.approved",
+    "billing.quote.approval_reverted",
+    "billing.payment.requested",
+    "billing.payment.approved",
+    "billing.payment.failed",
+    "inventory.stock.reserved",
+    "inventory.stock.reservation_failed"
+  ],
+  "billing": ["billing.quote.revert_approval", "billing.payment.cancel"],
+  "inventory": ["inventory.stock.reserve", "inventory.stock.consume"],
+  "notification": ["notification.email.send"]
+}
