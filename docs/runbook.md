@@ -70,6 +70,10 @@ e apaga só as mensagens que ela mesma publicou. Na AWS, ela também prova a
 policy das filas: uma entrega recusada pelo `aws:SourceArn` aparece como tipo
 que não chegou à fila do consumidor.
 
+Uma filter policy criada ou alterada leva até 15 minutos para valer na AWS
+(consistência eventual do SNS). Se a suíte falhar logo depois de um apply que
+mudou o mapa, espere esse tempo e rode de novo antes de investigar.
+
 ## Suíte de roteamento contra o LocalStack
 
 ```bash
@@ -88,9 +92,10 @@ pytest tests -v
 docker compose down
 ```
 
-Se o script de init falhar, todos os testes dão erro com
-`LocalStack init scripts failed: init-topology.sh: ERROR`. O log do container
-mostra o comando que falhou:
+Se o script não estiver montado em `ready.d`, todos os testes dão erro com
+`LocalStack init completed without running any script`. Se o script de init
+falhar, o erro é `LocalStack init scripts failed: init-topology.sh: ERROR`, e o
+log do container mostra o comando que falhou:
 
 ```bash
 # Últimas linhas do LocalStack, com a saída do script de init
