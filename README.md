@@ -342,8 +342,8 @@ pytest tests -v
 docker compose down
 ```
 
-A suíte espera o script de init terminar e falha com o nome dele se o estado
-não for `SUCCESSFUL`. Cada execução usa `messageId` novos, então pode ser
+A suíte espera o script de init terminar e falha se nenhum script rodou ou, com
+o nome dele, se o estado não for `SUCCESSFUL`. Cada execução usa `messageId` novos, então pode ser
 repetida no mesmo container.
 
 ---

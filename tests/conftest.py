@@ -38,14 +38,16 @@ def localstack_ready():
         if time.monotonic() > deadline:
             pytest.fail(f"LocalStack init not completed after 60 s at {endpoint}")
         try:
-            with urllib.request.urlopen(f"{endpoint}/_localstack/init/ready") as response:
+            with urllib.request.urlopen(f"{endpoint}/_localstack/init/ready", timeout=5) as response:
                 status = json.load(response)
         except OSError:
             time.sleep(1)
             continue
         if not status["completed"]:
             time.sleep(1)
-    failed = [f"{s['name']}: {s['state']}" for s in status["scripts"] if s["state"] != "SUCCESSFUL"]
+    if not status["scripts"]:
+        pytest.fail("LocalStack init completed without running any script: is init-topology.sh mounted in ready.d?")
+    failed =[f"{s['name']}: {s['state']}" for s in status["scripts"] if s["state"] != "SUCCESSFUL"]
     if failed:
         pytest.fail("LocalStack init scripts failed: " + ", ".join(failed))
 

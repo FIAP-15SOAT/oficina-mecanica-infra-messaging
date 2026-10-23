@@ -97,10 +97,11 @@ do ambiente.
 2. **Setup Python** (`actions/setup-python`): Python 3.15, com cache do pip pela chave de `tests/requirements.txt`.
 3. **Install test dependencies**: `pip install -r tests/requirements.txt` (boto3 e pytest em versões fixadas).
 4. **Start LocalStack with the init script**: `docker compose up -d`; o LocalStack 4.14.0 sobe com `localstack/init-topology.sh` montado em `/etc/localstack/init/ready.d/`.
-5. **Routing tests**: `pytest tests -v`. A suíte espera `GET /_localstack/init/ready` responder `completed` e falha com `init-topology.sh: <estado>` se o script não terminar `SUCCESSFUL`. Depois confere:
+5. **Routing tests**: `pytest tests -v`. A suíte espera `GET /_localstack/init/ready` responder `completed`, falha se nenhum script de init rodou e falha com `init-topology.sh: <estado>` se o script não terminar `SUCCESSFUL`. Depois confere:
    - por consumidor, que a assinatura tem raw delivery e a filter policy igual à lista do mapa em `terraform/subscribed-types.json`. É esse teste que pega um tipo que o script assina a mais;
    - por tipo do mapa, publicado duas vezes com os mesmos `MessageGroupId` e `MessageDeduplicationId`, que uma única cópia chega só à fila do consumidor, com o corpo e os atributos `type` e `traceparent`;
    - que um tipo fora do mapa não chega a nenhuma fila.
+6. **Dump LocalStack logs on failure**: só quando um step anterior falha (`if: failure()`); `docker compose logs localstack` mostra no log do job a saída do script de init, com o comando que falhou.
 
 ### Job `open-pr` — Open Pull Request
 
