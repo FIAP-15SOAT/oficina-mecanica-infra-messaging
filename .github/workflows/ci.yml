@@ -78,6 +78,9 @@ jobs:
         run: docker compose up -d
       - name: Routing tests
         run: pytest tests -v
+      - name: Dump LocalStack logs on failure
+        if: failure()
+        run: docker compose logs localstack
 
   open-pr:
     name: Open Pull Request
