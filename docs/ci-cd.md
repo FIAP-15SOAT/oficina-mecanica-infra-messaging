@@ -17,7 +17,7 @@ abrir PR (**CI**), ou aplicar a topologia (**CD**). A fonte executável é
 | Workflow | Arquivo | Gatilho | Responsabilidade |
 | --- | --- | --- | --- |
 | CI | `ci.yml` | `push` em `feature/**` e `fix/**` | fmt, init estático e validate; plan quando há credenciais AWS; suíte de roteamento contra o LocalStack; abertura idempotente de PR para `main` |
-| CD | `cd.yml` | `push` em `main` ou `workflow_dispatch` | init, validate, plan e apply da topologia, com gate por branch e variável de deploy |
+| CD | `cd.yml` | `push` em `main` ou `workflow_dispatch` (`action`: `apply` \| `destroy`) | init, validate e `plan`/`apply` (padrão) ou `destroy` da topologia, com gate por branch e variável de deploy |
 
 **Como ler os diagramas:** cada caixa grande é um **job**; seus **steps** estão
 enumerados dentro dela, na ordem do YAML. A seta entre jobs indica `needs`.
@@ -126,8 +126,9 @@ do ambiente.
 3. **Configure AWS Credentials**: configura os três Secrets temporários e `us-east-1`, sem `continue-on-error`.
 4. **Terraform Init**: `terraform init -no-color -backend-config="bucket=$TF_STATE_BUCKET"` em `terraform/`.
 5. **Terraform Validate**: `terraform validate -no-color`.
-6. **Terraform Plan**: `terraform plan -no-color`.
-7. **Terraform Apply**: `terraform apply -auto-approve -no-color`; cria ou atualiza o tópico, as filas, as policies e as assinaturas, e publica os outputs lidos pela Lambda de notificação.
+6. **Terraform Plan** (`if: github.event_name != 'workflow_dispatch' || inputs.action != 'destroy'`): `terraform plan -no-color`.
+7. **Terraform Apply** (`if: github.event_name != 'workflow_dispatch' || inputs.action != 'destroy'`): `terraform apply -auto-approve -no-color`; cria ou atualiza o tópico, as filas, as policies e as assinaturas, e publica os outputs lidos pela Lambda de notificação.
+8. **Terraform Destroy** (`if: github.event_name == 'workflow_dispatch' && inputs.action == 'destroy'`): `terraform destroy -auto-approve -no-color`; remove o tópico SNS FIFO, as filas SQS FIFO, as DLQs, as policies e as assinaturas quando disparado com `action=destroy`.
 
 Uma falha interrompe a sequência. O CD não roda a suíte de roteamento contra a
 AWS: com serviços e Lambdas no ar, eles consumiriam as mensagens de teste. A
@@ -170,7 +171,7 @@ repositório. O `routing-tests` não usa nenhum deles.
 - `fmt`, init sem backend e `validate` são estáticos; não confirmam permissões nem o plan.
 - O plan do CI é pulado quando a configuração de credenciais falha; depois de autenticar, falha de state ou de API falha o job.
 - O `Routing Tests` confere o script do LocalStack contra o mapa, não a AWS. O LocalStack não aplica a policy de fila, então um `aws:SourceArn` errado só aparece na suíte contra a AWS.
-- Não há workflow de destroy. A ordem de subida e derrubada está no [runbook](runbook.md#subida-e-derrubada).
+- A destruição via pipeline ocorre pelo disparo manual do `cd.yml` com `action=destroy` (ou pelo `scripts/environment-down.sh` do `infra-base`). A ordem de subida e derrubada está no [runbook](runbook.md#subida-e-derrubada).
 
 Decisões relacionadas: [ADR 0001](adr/0001-um-topico-fifo-e-uma-fila-por-consumidor.md) e [ADR 0002](adr/0002-mapa-unico-de-tipos-e-script-local.md).
 
