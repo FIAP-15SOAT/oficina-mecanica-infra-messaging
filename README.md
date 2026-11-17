@@ -168,7 +168,7 @@ sequenceDiagram
     D-->>Q: Redrive manual, depois de corrigir a causa
 ```
 
-A subida, a derrubada, o diagnóstico e o redrive estão no [runbook](docs/runbook.md).
+A suíte contra a AWS, o diagnóstico e o redrive estão no [runbook](docs/runbook.md); a subida e a derrubada do ambiente inteiro, no [runbook do `oficina-mecanica-infra-base`](https://github.com/FIAP-15SOAT/oficina-mecanica-infra-base/blob/main/docs/runbook.md).
 
 ---
 
@@ -205,7 +205,7 @@ script para `app/localstack/init-topology.sh` precisam atualizar a cópia.
 │   │   ├── ci-workflow.png  # Jobs e steps do workflow de CI
 │   │   └── infrastructure.png  # Tópico, filas, DLQs e assinaturas
 │   ├── ci-cd.md  # Jobs, steps, conditions e ruleset
-│   └── runbook.md  # Subida, suíte contra a AWS, diagnóstico e redrive
+│   └── runbook.md  # Suíte contra a AWS, diagnóstico e redrive
 ├── localstack/
 │   └── init-topology.sh  # Mesma topologia no LocalStack (awslocal)
 ├── terraform/
