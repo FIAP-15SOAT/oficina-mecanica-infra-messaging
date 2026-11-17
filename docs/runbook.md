@@ -22,27 +22,23 @@ export AWS_DEFAULT_REGION=us-east-1
 
 ## Subida e derrubada
 
-Ordem de subida da solução:
+A subida e a derrubada do ambiente inteiro, na ordem entre os repositórios,
+estão no [runbook do `oficina-mecanica-infra-base`](https://github.com/FIAP-15SOAT/oficina-mecanica-infra-base/blob/main/docs/runbook.md), o repositório da
+rede, que guarda os scripts `environment-up.sh` e `environment-down.sh`. Para
+este repositório, valem duas regras:
 
-1. `oficina-mecanica-infra-base` (rede).
-2. Em paralelo: `oficina-mecanica-infra-k8s`, **este repositório** e os repositórios de dados.
-3. **Suíte de roteamento contra a AWS** (seção seguinte), antes de qualquer serviço ou Lambda.
-4. CD dos quatro serviços.
-5. API Gateway, depois as Lambdas e, por último, o monitoramento.
+- Rode a [suíte de roteamento contra a AWS](#suíte-de-roteamento-contra-a-aws)
+  depois do apply deste repositório e antes de subir os serviços e as Lambdas.
+- A derrubada apaga as mensagens que estiverem nas filas e nas DLQs (as filas
+  que guardam as mensagens que o consumidor não conseguiu processar). Confira
+  antes que as DLQs estão vazias ou que as mensagens podem ser perdidas.
 
-A derrubada segue a ordem inversa: os serviços e a Lambda de notificação saem
-antes da topologia, porque leem as filas. Não há workflow de destroy:
+Para destruir só a topologia:
 
 ```bash
-# Na pasta terraform/, com o backend inicializado: revisar o que será removido
-terraform plan -destroy
-
-# Remover tópico, filas, DLQs, policies e assinaturas
-terraform destroy
+# Remover tópico, filas, DLQs, policies e assinaturas pelo CD
+gh workflow run cd.yml -R FIAP-15SOAT/oficina-mecanica-infra-messaging --ref main -f action=destroy
 ```
-
-O destroy apaga as mensagens que estiverem nas filas e nas DLQs. Confira antes
-que as DLQs estão vazias ou que as mensagens podem ser perdidas.
 
 ## Suíte de roteamento contra a AWS
 

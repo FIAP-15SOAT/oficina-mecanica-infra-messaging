@@ -171,7 +171,7 @@ repositório. O `routing-tests` não usa nenhum deles.
 - `fmt`, init sem backend e `validate` são estáticos; não confirmam permissões nem o plan.
 - O plan do CI é pulado quando a configuração de credenciais falha; depois de autenticar, falha de state ou de API falha o job.
 - O `Routing Tests` confere o script do LocalStack contra o mapa, não a AWS. O LocalStack não aplica a policy de fila, então um `aws:SourceArn` errado só aparece na suíte contra a AWS.
-- A destruição via pipeline ocorre pelo disparo manual do `cd.yml` com `action=destroy` (ou pelo `scripts/environment-down.sh` do `infra-base`). A ordem de subida e derrubada está no [runbook](runbook.md#subida-e-derrubada).
+- A destruição via pipeline ocorre pelo disparo manual do `cd.yml` com `action=destroy` (ou pelo `scripts/environment-down.sh` do `infra-base`). A ordem de subida e derrubada do ambiente inteiro está no [runbook do `oficina-mecanica-infra-base`](https://github.com/FIAP-15SOAT/oficina-mecanica-infra-base/blob/main/docs/runbook.md).
 
 Decisões relacionadas: [ADR 0001](adr/0001-um-topico-fifo-e-uma-fila-por-consumidor.md) e [ADR 0002](adr/0002-mapa-unico-de-tipos-e-script-local.md).
 
